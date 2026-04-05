@@ -2,19 +2,28 @@ import streamlit as st
 import heapq
 import pandas as pd
 
-st.title("🚚 E-commerce Delivery Optimization")
+st.title("🚚 Delivery Optimization Model")
+st.write("Enter distances and calculate shortest routes")
 
-st.write("Find shortest delivery routes from Warehouse to Hubs")
+# USER INPUTS
+st.sidebar.header("Enter Distances (in km)")
 
-# Graph input
+w_h1 = st.sidebar.number_input("Warehouse → Hub1", min_value=1, value=10)
+w_h2 = st.sidebar.number_input("Warehouse → Hub2", min_value=1, value=15)
+w_h3 = st.sidebar.number_input("Warehouse → Hub3", min_value=1, value=20)
+
+h1_h2 = st.sidebar.number_input("Hub1 → Hub2", min_value=1, value=5)
+h2_h3 = st.sidebar.number_input("Hub2 → Hub3", min_value=1, value=8)
+
+# GRAPH
 graph = {
-    'Warehouse': {'Hub1': 10, 'Hub2': 15, 'Hub3': 20},
-    'Hub1': {'Warehouse': 10, 'Hub2': 5},
-    'Hub2': {'Warehouse': 15, 'Hub1': 5, 'Hub3': 8},
-    'Hub3': {'Warehouse': 20, 'Hub2': 8}
+    'Warehouse': {'Hub1': w_h1, 'Hub2': w_h2, 'Hub3': w_h3},
+    'Hub1': {'Warehouse': w_h1, 'Hub2': h1_h2},
+    'Hub2': {'Warehouse': w_h2, 'Hub1': h1_h2, 'Hub3': h2_h3},
+    'Hub3': {'Warehouse': w_h3, 'Hub2': h2_h3}
 }
 
-# Dijkstra Algorithm
+# DIJKSTRA
 def shortest_path(graph, start):
     distances = {node: float('inf') for node in graph}
     distances[start] = 0
@@ -31,20 +40,18 @@ def shortest_path(graph, start):
 
     return distances
 
-# Button to run model
-if st.button("Calculate Shortest Routes"):
+# BUTTON
+if st.button("🚀 Calculate Shortest Routes"):
     result = shortest_path(graph, 'Warehouse')
 
     st.subheader("📊 Results")
 
-    # Convert to DataFrame
     df = pd.DataFrame(list(result.items()), columns=["Location", "Distance (km)"])
-
     st.table(df)
 
-    # Bar Chart
-    st.subheader("📈 Distance Visualization")
+    st.subheader("📈 Graph")
     st.bar_chart(df.set_index("Location"))
 
+# EXTRA INFO
 st.markdown("---")
-st.write("Developed using Streamlit for Mathematical Modelling Project")
+st.write("💡 Change values from sidebar to see different results")
